@@ -16,12 +16,28 @@ public class Main {
     public static void main(String[] args) {
 
         Main main = new Main();
-//        main.processExcelFile("padou.xlsx");
+        main.processExcelFile("padou.xlsx");
         main.processExcelFile("padou2.xlsx");
         main.processExcelFile("yells_july.xlsx");
     }
 
     private void processExcelFile(String sourceFileName) {
+
+        processExcelFileForPricesAndNumbers(sourceFileName);
+        processExcelFileForNumbers(sourceFileName);
+    }
+
+    private void processExcelFileForNumbers(String sourceFileName) {
+
+        processExcelFileForPricesAndNumbersOrForNumbers(sourceFileName, "Numbers");
+    }
+
+    private void processExcelFileForPricesAndNumbers(String sourceFileName) {
+
+        processExcelFileForPricesAndNumbersOrForNumbers(sourceFileName, "PricesAndNumbers");
+    }
+
+    private void processExcelFileForPricesAndNumbersOrForNumbers(String sourceFileName, String processMode) {
 
         int i = 0;
         HashMap<Integer, CellStyle> styleMap = new HashMap<>();
@@ -29,7 +45,16 @@ public class Main {
         try {
 
             XSSFWorkbook workbook = new XSSFWorkbook();
-            XSSFSheet sheetNew = workbook.createSheet("Prices & Numbers");
+
+            XSSFSheet sheetNew = null;
+            if (processMode.equals("PricesAndNumbers")) {
+
+                sheetNew = workbook.createSheet("Prices & Numbers");
+
+            } else if (processMode.equals("Numbers")) {
+
+                sheetNew = workbook.createSheet("Numbers");
+            }
             int rowCount = 0;
 
             File sourceFile = new File(getClass().getResource(sourceFileName).getFile());   //creating a new file instance
@@ -48,7 +73,18 @@ public class Main {
 //                    break;
 //                }
 
-                if ((i > 4) && ((i % 3) != 2)) {
+                boolean validationResult = false;
+                if (processMode.equals("PricesAndNumbers")) {
+
+                    validationResult = (i > 4) && ((i % 3) != 2);
+
+                } else if (processMode.equals("Numbers")) {
+
+                    int reminder = i % 3;
+                    validationResult = (i > 4) && (reminder != 2) && (reminder != 0);
+                }
+
+                if (validationResult) {
 
                     Iterator<Cell> cellIterator = row.cellIterator();   //iterating over each column
 
@@ -86,9 +122,18 @@ public class Main {
                     }
                 }
                 System.out.println();
-                try (FileOutputStream outputStream = new FileOutputStream(FilenameUtils.removeExtension(sourceFileName) + " Result.xlsx")) {
+                if (processMode.equals("PricesAndNumbers")) {
 
-                    workbook.write(outputStream);
+                    try (FileOutputStream outputStream = new FileOutputStream(FilenameUtils.removeExtension(sourceFileName) + " Prices & Numbers.xlsx")) {
+
+                        workbook.write(outputStream);
+                    }
+                } else if (processMode.equals("Numbers")) {
+
+                    try (FileOutputStream outputStream = new FileOutputStream(FilenameUtils.removeExtension(sourceFileName) + " Numbers.xlsx")) {
+
+                        workbook.write(outputStream);
+                    }
                 }
             }
         } catch (Exception e) {
