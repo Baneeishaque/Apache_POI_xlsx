@@ -43,10 +43,10 @@ public class Main {
 
                 System.out.print(++i + " ");
 
-                if (i == 10) {
-
-                    break;
-                }
+//                if (i == 10) {
+//
+//                    break;
+//                }
 
                 if ((i > 4) && ((i % 3) != 2)) {
 
