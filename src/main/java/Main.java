@@ -1,3 +1,4 @@
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -15,20 +16,24 @@ public class Main {
     public static void main(String[] args) {
 
         Main main = new Main();
-        main.processExcelFile();
+//        main.processExcelFile("padou.xlsx");
+        main.processExcelFile("padou2.xlsx");
+        main.processExcelFile("yells_july.xlsx");
     }
 
-    private void processExcelFile() {
+    private void processExcelFile(String sourceFileName) {
 
         int i = 0;
+        HashMap<Integer, CellStyle> styleMap = new HashMap<>();
+
         try {
 
             XSSFWorkbook workbook = new XSSFWorkbook();
             XSSFSheet sheetNew = workbook.createSheet("Prices & Numbers");
             int rowCount = 0;
 
-            File file = new File(getClass().getResource("padou.xlsx").getFile());   //creating a new file instance
-            FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file
+            File sourceFile = new File(getClass().getResource(sourceFileName).getFile());   //creating a new file instance
+            FileInputStream fis = new FileInputStream(sourceFile);   //obtaining bytes from the file
             //creating Workbook instance that refers to .xlsx file
             XSSFWorkbook wb = new XSSFWorkbook(fis);
             XSSFSheet sheet = wb.getSheetAt(0);     //creating a Sheet object to retrieve object
@@ -38,10 +43,10 @@ public class Main {
 
                 System.out.print(++i + " ");
 
-//                if (i == 10) {
-//
-//                    break;
-//                }
+                if (i == 10) {
+
+                    break;
+                }
 
                 if ((i > 4) && ((i % 3) != 2)) {
 
@@ -77,11 +82,11 @@ public class Main {
 
                             default:
                         }
-                        copyCellUsingHashMap(cell, cellNew);
+                        copyCellUsingHashMap(cell, cellNew, styleMap);
                     }
                 }
                 System.out.println();
-                try (FileOutputStream outputStream = new FileOutputStream("Prices & Numbers.xlsx")) {
+                try (FileOutputStream outputStream = new FileOutputStream(FilenameUtils.removeExtension(sourceFileName) + " Result.xlsx")) {
 
                     workbook.write(outputStream);
                 }
@@ -92,9 +97,7 @@ public class Main {
         }
     }
 
-    HashMap<Integer, CellStyle> styleMap = new HashMap<>();
-
-    public void copyCellUsingHashMap(Cell oldCell, Cell newCell) {
+    public void copyCellUsingHashMap(Cell oldCell, Cell newCell, HashMap<Integer, CellStyle> styleMap) {
 
         int styleHashCode = oldCell.getCellStyle().hashCode();
 
